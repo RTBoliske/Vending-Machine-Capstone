@@ -12,8 +12,10 @@ namespace Capstone.Classes
         #region Members
         
         public Dictionary<string, Inventory> _inventory = new Dictionary<string, Inventory>();
+        public Dictionary<string, int> ItemPurchases = new Dictionary<string, int>();
         public List<string> transactionList = new List<string>();
         string sourceFilePath = "";
+        int purchaseQty = 0;
 
         //sprivate Log _transactionLogger;
         #endregion
@@ -105,13 +107,10 @@ namespace Capstone.Classes
 
                         purchaseList.Add(selectedItem);
 
-                        
-                        //PrintToFile("SELECT PRODUCT");
+                        ItemPurchases.Add(item.Item.Name, purchaseQty++);
 
                         Console.WriteLine();
                         Console.WriteLine($" New balance is {CurrentBalance.ToString("c")}");
-
-                        //transactionList.Add($"{DateTime.Now} BALANCE {CurrentBalance.ToString("c")}");
                     }
                     else
                     {
@@ -205,8 +204,6 @@ namespace Capstone.Classes
                 }
 
                 transactionList.Add($"{DateTime.Now} FEED:\t\t{amtLoaded}\t{CurrentBalance.ToString("c")}");
-
-                //PrintToFile($"FEED {amtLoaded}");
             }
             catch (Exception e)
             {
@@ -294,6 +291,8 @@ namespace Capstone.Classes
 
             PrintToFile("TransactionLog.txt");
 
+            UpdateSalesReport("SalesReport.txt");
+
             Console.ReadKey();
         }
 
@@ -345,7 +344,7 @@ namespace Capstone.Classes
             }
         }
 
-        public void PrintReport(string report)
+        public void UpdateSalesReport(string report)
         {
             sourceFilePath = report;
 
