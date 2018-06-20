@@ -189,8 +189,6 @@ namespace Capstone.Classes
 
                         purchaseList.Add(selectedItem);
 
-                        ItemPurchases.Add(itemSelected.Item.Name, itemSelected.PurchaseQuantity++);
-
                         Console.WriteLine();
                         Console.WriteLine($" New balance is {CurrentBalance.ToString("c")}");
                     }
