@@ -14,16 +14,13 @@ namespace Capstone.Classes
         public Dictionary<string, Inventory> _inventory = new Dictionary<string, Inventory>();
         public Dictionary<string, int> ItemPurchases = new Dictionary<string, int>();
         public List<string> transactionList = new List<string>();
+        List<string> purchaseList = new List<string>();
         string sourceFilePath = "";
-        int purchaseQty = 0;
-
-        //sprivate Log _transactionLogger;
+        //int purchaseQuantity = 0;
         #endregion
 
         #region Properties
-        public decimal CurrentBalance { get; set; }
-        List<string> purchaseList = new List<string>();
-
+        public decimal CurrentBalance { get; set; } 
         #endregion
 
         #region Constructor
@@ -49,25 +46,25 @@ namespace Capstone.Classes
                         string line = sr.ReadLine();
                         string[] product = line.Split(splitChar);
 
-                        if (product[3] == Classes.product.Candy)
+                        if (product[3] == Classes.Product.Candy)
                         {
                             Candy candy = new Candy(product[1], decimal.Parse(product[2]));
                             Inventory item = new Inventory(candy);
                             _inventory.Add(product[0], item);
                         }
-                        if (product[3] == Classes.product.Chips)
+                        if (product[3] == Classes.Product.Chips)
                         {
                             Chips chip = new Chips(product[1], decimal.Parse(product[2]));
                             Inventory item = new Inventory(chip);
                             _inventory.Add(product[0], item);
                         }
-                        if (product[3] == Classes.product.Beverage)
+                        if (product[3] == Classes.Product.Beverage)
                         {
                             Beverage drink = new Beverage(product[1], decimal.Parse(product[2]));
                             Inventory item = new Inventory(drink);
                             _inventory.Add(product[0], item);
                         }
-                        if (product[3] == Classes.product.Gum)
+                        if (product[3] == Classes.Product.Gum)
                         {
                             Gum gum = new Gum(product[1], decimal.Parse(product[2]));
                             Inventory item = new Inventory(gum);
@@ -83,56 +80,6 @@ namespace Capstone.Classes
             }
         }
 
-        public void SelectProduct()
-        {
-            DisplayAllItems();
-            Console.WriteLine();
-            Console.WriteLine($" Current balance is {CurrentBalance.ToString("c")}");
-            Console.WriteLine();
-            Console.Write(" To select an item, enter the Slot ID... ");
-            string selectedItem = Console.ReadLine();
-
-            try
-            {
-                if (_inventory.ContainsKey(selectedItem))
-                {
-                    Inventory item = _inventory[selectedItem];
-
-                    if (item.Quantity != 0)
-                    {
-                        transactionList.Add($"{DateTime.Now} {item.Item.Name}\t{CurrentBalance.ToString("c")}\t{(CurrentBalance -= item.Item.Price).ToString("c")}");
-
-                        item.Quantity--;
-                        CurrentBalance -= item.Item.Price;
-
-                        purchaseList.Add(selectedItem);
-
-                        ItemPurchases.Add(item.Item.Name, purchaseQty++);
-
-                        Console.WriteLine();
-                        Console.WriteLine($" New balance is {CurrentBalance.ToString("c")}");
-                    }
-                    else
-                    {
-                        Console.WriteLine($" {item.Item.Name} is SOLD OUT, please make another selection.");
-                        Console.WriteLine(" Press any key to return to Purchase Menu. ");
-                        Console.ReadKey();
-                    }
-                }
-                else
-                {
-                    Console.WriteLine(" Product code does not exist, please try again.");
-                    Console.WriteLine(" Press any key to return to Purchase Menu. ");
-                    Console.ReadKey();
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(" Error selecting a product");
-                Console.WriteLine(e.Message);
-            }
-        }
-
         public void DisplayAllItems()
         {
             Console.Clear();
@@ -142,14 +89,17 @@ namespace Capstone.Classes
 
             try
             {
-                foreach (KeyValuePair<string, Inventory> item in _inventory)
+                foreach (KeyValuePair<string, Inventory> productItem in _inventory)
                 {
-                    Console.WriteLine(" {0, 5}  {1, -27} {2, 4} {3, 7}", item.Key, item.Value.Item.Name, item.Value.Item.Price, item.Value.Quantity);
+                    Console.WriteLine(" {0, 5}  {1, -27} {2, 4} {3, 7}", 
+                                     productItem.Key, productItem.Value.Item.Name, 
+                                     productItem.Value.Item.Price, productItem.Value.Quantity);
                 }
             }
             catch (Exception e)
             {
                 Console.WriteLine(" Error displaying products");
+                Console.Write(e.Message);
             }
 
             Console.WriteLine();
@@ -170,7 +120,7 @@ namespace Capstone.Classes
             Console.WriteLine();
             Console.Write(" How much money would you like to add? ");
             char input = Console.ReadKey().KeyChar;
-            string amtLoaded = "";
+            string amountLoaded = "";
 
             try
             {
@@ -178,32 +128,32 @@ namespace Capstone.Classes
                 {
                     CurrentBalance += 1;
 
-                    amtLoaded = "$1.00";
+                    amountLoaded = "$1.00";
                 }
                 else if (input == '2')
                 {
                     CurrentBalance += 2;
 
-                    amtLoaded = "$2.00";
+                    amountLoaded = "$2.00";
                 }
                 else if (input == '3')
                 {
                     CurrentBalance += 5;
 
-                    amtLoaded = "$5.00";
+                    amountLoaded = "$5.00";
                 }
                 else if (input == '4')
                 {
                     CurrentBalance += 10;
 
-                    amtLoaded = "$10.00";
+                    amountLoaded = "$10.00";
                 }
                 else
                 {
                     Console.WriteLine(" Please try again. ");
                 }
 
-                transactionList.Add($"{DateTime.Now} FEED:\t\t{amtLoaded}\t{CurrentBalance.ToString("c")}");
+                transactionList.Add($"{DateTime.Now} FEED:\t\t{amountLoaded}\t{CurrentBalance.ToString("c")}");
             }
             catch (Exception e)
             {
@@ -212,9 +162,57 @@ namespace Capstone.Classes
             }
         }
 
-        public void DispenseProduct(string selectedItem)
+        public void SelectProduct()
         {
-            //purchaseList.Add(selectedItem);
+            DisplayAllItems();
+            Console.WriteLine();
+            Console.WriteLine($" Current balance is {CurrentBalance.ToString("c")}");
+            Console.WriteLine();
+
+            Console.Write(" To select an item, enter the Slot ID... ");
+            string selectedItem = Console.ReadLine();
+
+            try
+            {
+                if (_inventory.ContainsKey(selectedItem))
+                {
+                    Inventory itemSelected = _inventory[selectedItem];
+
+                    if (itemSelected.Quantity != 0)
+                    {
+                        transactionList.Add($"{DateTime.Now} {itemSelected.Item.Name}\t{CurrentBalance.ToString("c")}" +
+                                            $"\t{(CurrentBalance -= itemSelected.Item.Price).ToString("c")}");
+
+                        itemSelected.Quantity--;
+                        itemSelected.PurchaseQuantity++;
+                        CurrentBalance = CurrentBalance;
+
+                        purchaseList.Add(selectedItem);
+
+                        ItemPurchases.Add(itemSelected.Item.Name, itemSelected.PurchaseQuantity++);
+
+                        Console.WriteLine();
+                        Console.WriteLine($" New balance is {CurrentBalance.ToString("c")}");
+                    }
+                    else
+                    {
+                        Console.WriteLine($" {itemSelected.Item.Name} is SOLD OUT, please make another selection.");
+                        Console.WriteLine(" Press any key to return to Purchase Menu. ");
+                        Console.ReadKey();
+                    }
+                }
+                else
+                {
+                    Console.WriteLine(" Product code does not exist, please try again.");
+                    Console.WriteLine(" Press any key to return to Purchase Menu. ");
+                    Console.ReadKey();
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(" Error selecting a product");
+                Console.WriteLine(e.Message);
+            }
         }
 
         public void ConsumeProduct(List<string> purchaseList)
@@ -223,18 +221,15 @@ namespace Capstone.Classes
             {
                 foreach (string selection in purchaseList)
                 {
-                    if (selection == "A1" || selection == "A2" ||
-                        selection == "A3" || selection == "A4")
+                    if (selection.Contains("A"))
                     {
                         Console.WriteLine(" Crunch Crunch, Yum!");
                     }
-                    else if (selection == "B1" || selection == "B2" ||
-                             selection == "B3" || selection == "B4")
+                    else if (selection.Contains("B1"))
                     {
                         Console.WriteLine(" Munch, Munch, Yum!");
                     }
-                    else if (selection == "C1" || selection == "C2" ||
-                             selection == "C3" || selection == "C4")
+                    else if (selection.Contains("C1"))
                     {
                         Console.WriteLine(" Gulp, Gulp, Yum!");
                     }
@@ -268,6 +263,8 @@ namespace Capstone.Classes
             int qtyDimes = 0;
             int qtyNickels = 0;
 
+            decimal FinalBalance = 0;
+
             try
             {
                 qtyQuarters = (change / quarter);
@@ -277,16 +274,18 @@ namespace Capstone.Classes
             catch (Exception e)
             {
                 Console.WriteLine(" Error while attempting to finish transaction");
+                Console.Write(e.Message);
             }
 
             Console.WriteLine($" Your change is {qtyQuarters} quarters, {qtyDimes} dimes, and {qtyNickels} nickels.");
             Console.WriteLine();
-            decimal FinalBalance = 0;
+           
             Console.WriteLine($" Your balance is now {FinalBalance.ToString("C")}.");
             Console.WriteLine();
 
             transactionList.Add($"{DateTime.Now} GIVE CHANGE:\t{CurrentBalance.ToString("C")}\t{FinalBalance.ToString("C")}");
 
+            Console.WriteLine();
             ConsumeProduct(purchaseList);
 
             PrintToFile("TransactionLog.txt");
@@ -333,7 +332,7 @@ namespace Capstone.Classes
                 {
                     foreach (string action in transactionList)
                     {
-                        sw.WriteLine(action);
+                        sw.WriteLine(" " + action);
                     }
                 }
             }
@@ -347,24 +346,29 @@ namespace Capstone.Classes
         public void UpdateSalesReport(string report)
         {
             sourceFilePath = report;
+            decimal totalSalesAmount = 0;
 
             DoesFileExist(sourceFilePath);
 
-            //try
-            //{
-            //    using (StreamWriter sw = new StreamWriter(sourceFilePath))
-            //    {
-            //        foreach (string action in transactionList)
-            //        {
-            //            sw.WriteLine(action);
-            //        }
-            //    }
-            //}
-            //catch (IOException e)
-            //{
-            //    Console.Write(" Error printing to the file... ");
-            //    Console.Write(e.Message);
-            //}
+            try
+            {
+                using (StreamWriter sw = new StreamWriter(sourceFilePath))
+                {
+                    foreach (KeyValuePair<string, Inventory> purchase in _inventory)
+                    {
+                        sw.WriteLine(" " + purchase.Value.Item.Name + " | " + purchase.Value.PurchaseQuantity);
+                        totalSalesAmount = totalSalesAmount + (purchase.Value.PurchaseQuantity * purchase.Value.Item.Price);
+                    }
+
+                    sw.WriteLine();
+                    sw.WriteLine($" Total Sales: {totalSalesAmount}");
+                }
+            }
+            catch (IOException e)
+            {
+                Console.Write(" Error printing to the file... ");
+                Console.Write(e.Message);
+            }
         }
         #endregion
     }

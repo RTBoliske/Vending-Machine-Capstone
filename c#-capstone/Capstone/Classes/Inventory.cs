@@ -12,12 +12,13 @@ namespace Capstone.Classes
         #endregion
 
         #region Properties
-        public product Item { get; }
+        public Product Item { get; }
         public int Quantity { get; set; } = 5;
+        public int PurchaseQuantity { get; set; }
         #endregion
 
         #region Constructor
-        public Inventory(product item)
+        public Inventory(Product item)
         {
             Item = item;
         }

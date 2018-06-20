@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Capstone.Classes
 {
-    public class Candy : product
+    public class Candy : Product
     {
         #region Properties
         #endregion

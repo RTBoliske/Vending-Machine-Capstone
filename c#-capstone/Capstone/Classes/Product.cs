@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Capstone.Classes
 {
-    public abstract class product 
+    public abstract class Product 
     {
         public const string Beverage = "Drink";
         public const string Candy = "Candy";
@@ -21,7 +21,7 @@ namespace Capstone.Classes
         #endregion
 
         #region Constructor
-        public product (string name, decimal price)
+        public Product (string name, decimal price)
         {
             Name = name;
             Price = price;
