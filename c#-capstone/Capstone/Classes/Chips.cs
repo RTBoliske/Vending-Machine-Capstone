@@ -16,6 +16,11 @@ namespace Capstone.Classes
         {
 
         }
+        
+        public Chips()
+        {
+        
+        }
         #endregion
 
         #region Methods
