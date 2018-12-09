@@ -16,7 +16,6 @@ namespace Capstone.Classes
         #endregion
 
         #region Properties
-        //public decimal CurrentBalance { get; set; }
         #endregion
 
         #region Constructor
@@ -45,7 +44,7 @@ namespace Capstone.Classes
                 Console.WriteLine(" (Q) Quit");
                 Console.WriteLine();
 
-                Console.Write(" What option do you want to select? ");
+                Console.Write(" Please select an option... ");
                 char input = Console.ReadKey().KeyChar;
 
                 if (input == '1')
@@ -54,22 +53,21 @@ namespace Capstone.Classes
                 }
                 else if (input == '2')
                 {
-                    DisplaySubMenu();
+                    DisplayPurchaseMenu();
                 }
                 
                 else if (input == 'q' || input == 'Q')
                 {
                     exit = true;
-                    break;
                 }
                 else
                 {
-                    Console.WriteLine(" Please try again. ");
+                    Console.WriteLine(" Please try again... ");
                 }
             }
         }
 
-        public void DisplaySubMenu()
+        public void DisplayPurchaseMenu()
         {
             bool exit = false;
 
@@ -78,15 +76,15 @@ namespace Capstone.Classes
                 Console.Clear();
 
                 Console.WriteLine();
-                Console.WriteLine(" Purchase Menu");
+                Console.WriteLine(" -- Purchase Menu --");
                 Console.WriteLine();
-                Console.WriteLine(" (1) Feed Money");
+                Console.WriteLine(" (1) Load Money");
                 Console.WriteLine(" (2) Select Product");
                 Console.WriteLine(" (3) Finish Transaction");
-                Console.WriteLine(" (Q) Return to Main Menu");
+                Console.WriteLine(" (Q) Quit");
                 Console.WriteLine();
 
-                Console.Write(" What option do you want to select? ");
+                Console.Write(" Please select an option... ");
                 char input = Console.ReadKey().KeyChar;
 
                 if (input == '1')
