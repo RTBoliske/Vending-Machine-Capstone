@@ -14,7 +14,7 @@ namespace Capstone.Classes
         #region Properties
         public Product Item { get; }
         public int Quantity { get; set; } = 5;
-        public int PurchaseQuantity { get; set; }
+        public int PurchaseQuantity { get; set; } = 0;
         #endregion
 
         #region Constructor
