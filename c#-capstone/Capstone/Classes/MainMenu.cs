@@ -105,7 +105,7 @@ namespace Capstone.Classes
                 }
                 else
                 {
-                    Console.WriteLine(" Please try again. ");
+                    Console.WriteLine(" Please try again... ");
                 }
             }
         }
