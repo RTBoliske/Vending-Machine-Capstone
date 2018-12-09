@@ -16,6 +16,11 @@ namespace Capstone.Classes
         {
 
         }
+        
+        public Candy()
+        {
+        
+        }
         #endregion
 
         #region Methods
