@@ -16,6 +16,11 @@ namespace Capstone.Classes
         {
 
         }
+        
+        public Gum()
+        {
+        
+        }
         #endregion
 
         #region Methods
