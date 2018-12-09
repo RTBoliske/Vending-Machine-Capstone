@@ -16,6 +16,11 @@ namespace Capstone.Classes
         {
 
         }
+        
+        public Beverage()
+        {
+        
+        }
         #endregion
 
         #region Methods
