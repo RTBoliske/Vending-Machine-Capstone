@@ -12,6 +12,7 @@ namespace Capstone.Classes
         public const string Candy = "Candy";
         public const string Chips = "Chip";
         public const string Gum = "Gum";
+        
         #region Members
         #endregion
 
@@ -25,6 +26,11 @@ namespace Capstone.Classes
         {
             Name = name;
             Price = price;
+        }
+        
+        public Product()
+        {
+            
         }
         #endregion
 
