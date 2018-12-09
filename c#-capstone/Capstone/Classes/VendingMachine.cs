@@ -12,7 +12,7 @@ namespace Capstone.Classes
         #region Members
         
         public Dictionary<string, Inventory> _inventory = new Dictionary<string, Inventory>();
-        public Dictionary<string, int> ItemPurchases = new Dictionary<string, int>();
+        public Dictionary<string, Inventory> ItemPurchases = new Dictionary<string, Inventory>();
         public List<string> transactionList = new List<string>();
         List<string> purchaseList = new List<string>();
         string sourceFilePath = "";
@@ -32,10 +32,12 @@ namespace Capstone.Classes
         #region Methods
         public void LoadVendingMachine()
         {
-            string sourceFilePath = "vendingmachine.csv";
+            sourceFilePath = "vendingmachine.csv";
             sourceFilePath = Path.Combine(Environment.CurrentDirectory, sourceFilePath);
 
             char[] splitChar = { '|' };
+            
+            Product _product = null;
 
             try
             {
@@ -44,38 +46,33 @@ namespace Capstone.Classes
                     while (!sr.EndOfStream)
                     {
                         string line = sr.ReadLine();
-                        string[] product = line.Split(splitChar);
+                        string[] products = line.Split(splitChar);
 
-                        if (product[3] == Classes.Product.Candy)
+                        if (products[3] == Product.Candy)
                         {
-                            Candy candy = new Candy(product[1], decimal.Parse(product[2]));
-                            Inventory item = new Inventory(candy);
-                            _inventory.Add(product[0], item);
+                            _product = new Candy(products[1], decimal.Parse(product[2]));
                         }
-                        if (product[3] == Classes.Product.Chips)
+                        if (products[3] == Product.Chips)
                         {
-                            Chips chip = new Chips(product[1], decimal.Parse(product[2]));
-                            Inventory item = new Inventory(chip);
-                            _inventory.Add(product[0], item);
+                            _product = new Chips(products[1], decimal.Parse(product[2]));
                         }
-                        if (product[3] == Classes.Product.Beverage)
+                        if (products[3] == Product.Beverage)
                         {
-                            Beverage drink = new Beverage(product[1], decimal.Parse(product[2]));
-                            Inventory item = new Inventory(drink);
-                            _inventory.Add(product[0], item);
+                            _product = new Beverage(products[1], decimal.Parse(product[2]));
                         }
-                        if (product[3] == Classes.Product.Gum)
+                        if (products[3] == Product.Gum)
                         {
-                            Gum gum = new Gum(product[1], decimal.Parse(product[2]));
-                            Inventory item = new Inventory(gum);
-                            _inventory.Add(product[0], item);
+                            _product = new Gum(products[1], decimal.Parse(product[2]));
                         }
                     }
+                    
+                    Inventory item = new Inventory(_product);
+                    _inventory.Add(products[0], item);
                 }
             }
             catch (InvalidOperationException e)
             {
-                Console.WriteLine(" Error reading the file");
+                Console.WriteLine(" Error reading the file... ");
                 Console.WriteLine(e.Message);
             }
         }
@@ -98,7 +95,7 @@ namespace Capstone.Classes
             }
             catch (Exception e)
             {
-                Console.WriteLine(" Error displaying products");
+                Console.WriteLine(" Error displaying products... ");
                 Console.Write(e.Message);
             }
 
@@ -118,9 +115,10 @@ namespace Capstone.Classes
             Console.WriteLine(" (3) $5");
             Console.WriteLine(" (4) $10");
             Console.WriteLine();
-            Console.Write(" How much money would you like to add? ");
+            
+            Console.Write(" How much money would you like to add? Press the key... ");
             char input = Console.ReadKey().KeyChar;
-            string amountLoaded = "";
+            string amountAdded = "";
 
             try
             {
@@ -128,36 +126,36 @@ namespace Capstone.Classes
                 {
                     CurrentBalance += 1;
 
-                    amountLoaded = "$1.00";
+                    amountAdded = "$1.00";
                 }
                 else if (input == '2')
                 {
                     CurrentBalance += 2;
 
-                    amountLoaded = "$2.00";
+                    amountAdded = "$2.00";
                 }
                 else if (input == '3')
                 {
                     CurrentBalance += 5;
 
-                    amountLoaded = "$5.00";
+                    amountAdded = "$5.00";
                 }
                 else if (input == '4')
                 {
                     CurrentBalance += 10;
 
-                    amountLoaded = "$10.00";
+                    amountAdded = "$10.00";
                 }
                 else
                 {
                     Console.WriteLine(" Please try again. ");
                 }
 
-                transactionList.Add($"{DateTime.Now} FEED:\t\t{amountLoaded}\t{CurrentBalance.ToString("c")}");
+                transactionList.Add($"{DateTime.Now} FEED:\t\t{amountAdded}\t{CurrentBalance.ToString("c")}");
             }
             catch (Exception e)
             {
-                Console.WriteLine(" Error loading money");
+                Console.WriteLine(" Error loading money... ");
                 Console.WriteLine(e.Message);
             }
         }
@@ -165,6 +163,7 @@ namespace Capstone.Classes
         public void SelectProduct()
         {
             DisplayAllItems();
+            
             Console.WriteLine();
             Console.WriteLine($" Current balance is {CurrentBalance.ToString("c")}");
             Console.WriteLine();
@@ -178,7 +177,7 @@ namespace Capstone.Classes
                 {
                     Inventory itemSelected = _inventory[selectedItem];
 
-                    if (itemSelected.Quantity != 0)
+                    if (itemSelected.Quantity != 0 && CurrentBalance >= itemSelected.Item.Price)
                     {
                         transactionList.Add($"{DateTime.Now} {itemSelected.Item.Name}\t{CurrentBalance.ToString("c")}" +
                                             $"\t{(CurrentBalance -= itemSelected.Item.Price).ToString("c")}");
@@ -191,10 +190,12 @@ namespace Capstone.Classes
 
                         Console.WriteLine();
                         Console.WriteLine($" New balance is {CurrentBalance.ToString("c")}");
+                        
+                        UpdateSalesReport("SalesReport.txt");
                     }
                     else
                     {
-                        Console.WriteLine($" {itemSelected.Item.Name} is SOLD OUT, please make another selection.");
+                        Console.WriteLine($" {itemSelected.Item.Name} is SOLD OUT, please make another selection... ");
                         Console.WriteLine(" Press any key to return to Purchase Menu. ");
                         Console.ReadKey();
                     }
@@ -208,38 +209,43 @@ namespace Capstone.Classes
             }
             catch (Exception e)
             {
-                Console.WriteLine(" Error selecting a product");
+                Console.WriteLine(" Error selecting a product... ");
                 Console.WriteLine(e.Message);
             }
         }
 
         public void ConsumeProduct(List<string> purchaseList)
         {
+            Chips chips = new Chips();
+            Candy candy = new Candy();
+            Beverage beverage = new Beverage();
+            Gum gum = new Gum();
+            
             try
             {
                 foreach (string selection in purchaseList)
                 {
                     if (selection.Contains("A"))
                     {
-                        Console.WriteLine(" Crunch Crunch, Yum!");
+                        Console.WriteLine(" " + chips.Consume());
                     }
                     else if (selection.Contains("B1"))
                     {
-                        Console.WriteLine(" Munch, Munch, Yum!");
+                        Console.WriteLine(" " + candy.Consume());
                     }
                     else if (selection.Contains("C1"))
                     {
-                        Console.WriteLine(" Gulp, Gulp, Yum!");
+                        Console.WriteLine(" " + beverage.Consume());
                     }
                     else
                     {
-                        Console.WriteLine(" Chew, Chew, Yum!");
+                        Console.WriteLine(" " + gum.Consume());
                     }
                 }
             }
             catch (Exception e)
             {
-                Console.WriteLine(" Error while attempting to consume purchased products");
+                Console.WriteLine(" Error while attempting to consume purchased products... ");
                 Console.WriteLine(e.Message);
             }
         }
@@ -261,7 +267,7 @@ namespace Capstone.Classes
             int qtyDimes = 0;
             int qtyNickels = 0;
 
-            decimal FinalBalance = 0;
+            decimal finalBalance = 0;
 
             try
             {
@@ -271,24 +277,22 @@ namespace Capstone.Classes
             }
             catch (Exception e)
             {
-                Console.WriteLine(" Error while attempting to finish transaction");
+                Console.WriteLine(" Error while attempting to finish transaction... ");
                 Console.Write(e.Message);
             }
 
             Console.WriteLine($" Your change is {qtyQuarters} quarters, {qtyDimes} dimes, and {qtyNickels} nickels.");
             Console.WriteLine();
            
-            Console.WriteLine($" Your balance is now {FinalBalance.ToString("C")}.");
+            Console.WriteLine($" Your balance is now {finalBalance.ToString("C")}.");
             Console.WriteLine();
 
-            transactionList.Add($"{DateTime.Now} GIVE CHANGE:\t{CurrentBalance.ToString("C")}\t{FinalBalance.ToString("C")}");
+            transactionList.Add($"{DateTime.Now} GIVE CHANGE:\t{CurrentBalance.ToString("C")}\t{finalBalance.ToString("C")}");
 
             Console.WriteLine();
             ConsumeProduct(purchaseList);
 
             PrintToFile("TransactionLog.txt");
-
-            UpdateSalesReport("SalesReport.txt");
 
             Console.ReadKey();
         }
@@ -310,7 +314,7 @@ namespace Capstone.Classes
                 }
                 else
                 {
-                    Console.WriteLine(" File path does not exist, please verify correct file.");
+                    Console.WriteLine(" File path does not exist, please verify correct file name... ");
                 }
             }
             while (!exists);
@@ -322,7 +326,7 @@ namespace Capstone.Classes
         {
             sourceFilePath = file;
 
-            DoesFileExist(sourceFilePath);
+            //DoesFileExist(sourceFilePath);
 
             try
             {
@@ -359,7 +363,7 @@ namespace Capstone.Classes
                     }
 
                     sw.WriteLine();
-                    sw.WriteLine($" Total Sales: {totalSalesAmount}");
+                    sw.WriteLine("** Total Sales ** " + totalSalesAmount.ToString("c"));
                 }
             }
             catch (IOException e)
